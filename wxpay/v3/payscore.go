@@ -17,9 +17,9 @@ import (
 )
 
 const (
-	POST        = "POST"
-	GET         = "GET"
-	baseUrl     = "https://api.mch.weixin.qq.com/v3"
+	POST    = "POST"
+	GET     = "GET"
+	baseUrl = "https://api.mch.weixin.qq.com/v3"
 
 	fmtSign     = "%s\n%s\n%s\n%s\n%s\n"
 	fmtAuth     = "WECHATPAY2-SHA256-RSA2048 mchid=\"%s\",nonce_str=\"%s\",signature=\"%s\",timestamp=\"%s\",serial_no=\"%s\""
@@ -60,19 +60,30 @@ func New(mchId, serialNo, ServiceID, keyPath, certPath string) (*PayScore, error
 	}, nil
 }
 
-func (wx *PayScore) CreateOrder(order CreateOrder) {
+func (wx *PayScore) CreateOrder(order CreateOrder) (*RspCreateOrder, error) {
 	res, err := wx.Do(order, POST, createOrder)
-	fmt.Println(string(res), err)
+	if err != nil {
+		return nil, err
+	}
+	var result RspCreateOrder
+	_ = json.Unmarshal(res, &result)
+	return &result, nil
 }
-func (wx *PayScore) QueryOrder(order QueryOrder) {
+func (wx *PayScore) QueryOrder(order QueryOrder) (resp *RspCreateOrder, err error) {
 	url := fmt.Sprintf(queryOrder, order.ServiceID, order.AppID)
 	if order.OutOrderNo != "" {
 		url += "&out_order_no=" + order.OutOrderNo
 	} else {
 		url += "&query_id=" + order.QueryID
 	}
-	res, err :=wx.Do(order, GET, url)
-	fmt.Println(string(res), err)
+	res, err := wx.Do(order, GET, url)
+	if err != nil {
+		return nil, err
+	}
+	var result RspCreateOrder
+	_ = json.Unmarshal(res, &result)
+	return &result, nil
+	//fmt.Println(string(res), err)
 }
 func (wx *PayScore) CancelOrder(order CancelOrder) {
 	uri := fmt.Sprintf(cancelOrder, order.OutOrderNo)
@@ -84,12 +95,12 @@ func (wx *PayScore) Do(req interface{}, method, uri string) ([]byte, error) {
 	timestamp := fmt.Sprintf("%d", time.Now().Unix())
 	nonceStr := crand.Letters(16)
 	var data []byte
-	if method==POST{
+	if method == POST {
 		d, err := json.Marshal(req)
 		if err != nil {
 			return nil, err
 		}
-		data=d
+		data = d
 	}
 	header := http.Header{}
 	sign, err := wx.sign(method, uri, timestamp, nonceStr, string(data))

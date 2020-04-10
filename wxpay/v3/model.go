@@ -16,6 +16,14 @@ type CreateOrder struct {
 	NeedUserConfirm     bool           `json:"need_user_confirm"`
 }
 
+type RspCreateOrder struct {
+	CreateOrder
+	MchID string `json:"mchid"`
+	State string `json:"state"`
+	StateDescription string `json:"state_description"`
+	OrderID string `json:"order_id"`
+	Package string `json:"package"`
+}
 type PostPayment struct {
 	Name        string `json:"name,omitempty"`
 	Amount      int    `json:"amount,omitempty"`
@@ -59,4 +67,18 @@ type QueryOrder struct {
 	QueryID    string
 	ServiceID  string
 	AppID      string
+}
+
+
+type NoticeResult struct {
+	ID string `json:"id"`
+	CreateTime string `json:"create_time"`
+	EventType string `json:"event_type"`
+	ResourceType string `json:"resource_type"`
+	Resource struct{
+		Algorithm string `json:"algorithm"`
+		CipherText string `json:"ciphertext"`
+		AssociatedData string `json:"associated_data"`
+		Nonce string `json:"nonce"`
+	} `json:"resource"`
 }
