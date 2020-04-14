@@ -116,7 +116,6 @@ func (wx *PayScore) Do(req interface{}, method, uri string) ([]byte, error) {
 func (wx *PayScore) sign(method, uri, timestamp, nonce, body string) (string, error) {
 	path := wx.getUri(uri)
 	hash := sha256.New()
-	fmt.Println(fmt.Sprintf(fmtSign, method, path, timestamp, nonce, body))
 	hash.Write([]byte(fmt.Sprintf(fmtSign, method, path, timestamp, nonce, body)))
 	cipherdata, err := rsa.SignPKCS1v15(rand.Reader, wx.PrivateKey, crypto.SHA256, hash.Sum(nil))
 	if err != nil {

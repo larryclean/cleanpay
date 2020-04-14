@@ -26,7 +26,6 @@ func Sign(h cmap.H, apiKey string, signType string) cmap.H {
 		ha = md5.New()
 	}
 	str := h.Sort()
-	fmt.Println(str)
 	str = fmt.Sprintf("%s&key=%s", str, apiKey)
 	ha.Write([]byte(str))
 	h["sign"] = strings.ToUpper(hex.EncodeToString(ha.Sum(nil)))
